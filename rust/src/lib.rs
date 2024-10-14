@@ -803,6 +803,15 @@ impl<'a> FromPyObject<'a> for PyProp {
     }
 }
 
+impl IntoPy<PyObject> for PyProp {
+    fn into_py(self, py: Python<'_>) -> PyObject {
+        match self.0 {
+            am::Prop::Map(s) => s.into_py(py),
+            am::Prop::Seq(i) => i.into_py(py),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct PyObjId(am::ObjId);
 
@@ -1051,5 +1060,19 @@ struct PyPatch(am::Patch);
 impl PyPatch {
     fn __repr__(&self) -> String {
         format!("{:?}", self.0)
+    }
+
+    #[getter]
+    fn obj(&self) -> PyObjId {
+        PyObjId(self.0.obj.clone())
+    }
+
+    #[getter]
+    fn path(&self) -> Vec<(PyObjId, PyProp)> {
+        self.0
+            .path
+            .iter()
+            .map(|(obj, prop)| (PyObjId(obj.clone()), PyProp(prop.clone())))
+            .collect()
     }
 }
