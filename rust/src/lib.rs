@@ -772,7 +772,7 @@ fn random_actor_id<'py>(py: Python<'py>) -> Bound<'py, PyBytes> {
 
 /// A Python module implemented in Rust.
 #[pymodule]
-fn _automerge(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _automerge(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Classes
     m.add_class::<Document>()?;
     m.add_class::<Transaction>()?;
@@ -790,6 +790,18 @@ fn _automerge(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Functions
     m.add_function(wrap_pyfunction!(random_actor_id, m)?)?;
+
+    // Submodule
+    let submodule = PyModule::new_bound(py, "patch_action")?;
+    submodule.add_class::<PutMap>()?;
+    submodule.add_class::<PutSeq>()?;
+    submodule.add_class::<Increment>()?;
+    submodule.add_class::<Insert>()?;
+    submodule.add_class::<Conflict>()?;
+    submodule.add_class::<DeleteMap>()?;
+    submodule.add_class::<DeleteSeq>()?;
+    submodule.add_class::<MarkAction>()?;
+    m.add_submodule(&submodule)?;
     Ok(())
 }
 
@@ -1265,7 +1277,7 @@ pub struct DeleteSeq {
 }
 
 /// Struct for `Mark`.
-#[pyclass]
+#[pyclass(name = "Mark")]
 #[derive(Debug, Clone)]
 pub struct MarkAction {
     #[pyo3(get)]

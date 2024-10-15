@@ -4,8 +4,9 @@ from .. import _automerge
 from .._automerge import *
 
 ScalarValue = Union[str, bytes, int, float, bool, datetime, None]
-Thing = Union[Dict[str, 'Thing'], List['Thing'], ScalarValue]
+Thing = Union[Dict[str, "Thing"], List["Thing"], ScalarValue]
 Value = Union[ObjType, Tuple[ScalarType, ScalarValue]]
+
 
 def extract(doc: Document, obj_id: bytes = ROOT) -> Thing:
     ot = doc.object_type(obj_id)
@@ -28,6 +29,7 @@ def extract(doc: Document, obj_id: bytes = ROOT) -> Thing:
     elif ot == ObjType.Text:
         return doc.text(obj_id)
     raise Exception("unexpected result from doc.object_type")
+
 
 __doc__ = _automerge.__doc__
 if hasattr(_automerge, "__all__"):
